@@ -25,7 +25,7 @@ byte bombaOff[8] = {
     0b00100};
 
 //#########################BUZZER CONTROL#############################################################
-#define BUZZER_PIN 4 //Buzzer BUZZER_PIN
+#define BUZZER_PIN 15 //Buzzer BUZZER_PIN
 
 double demora = 0;
 
@@ -88,7 +88,7 @@ void buzzer_finish()
   }
 }
 
-#define CTROL_RELAY_GPIO 23 //GPIO DESTINADO A CONRTROLAR EL RELAY QUE GOBIERNA LA BOMBA
+#define CTROL_RELAY_GPIO 25 //GPIO DESTINADO A CONRTROLAR EL RELAY QUE GOBIERNA LA BOMBA
 
 //#################filtro promedio###################################
 const int numReadings = 20;
@@ -123,8 +123,8 @@ double filtroProm(double entrada)
 
 //#############MEDICION CON EL SENSOR ULTRASONICO#########################
 #define DIST_TOPE 120 // 120 nivel maximo, medida con el tanque vacio en cm
-const int trigPin = 2; //2
-const int echoPin = 5; //5
+const int trigPin = 13; //2
+const int echoPin = 12; //5
 
 float distancia = 0;
 uint8_t nivel = 0; //nivel en porciento
@@ -248,7 +248,7 @@ void control_Pump(unsigned int ControlPin)
   }
 }
 //##############Sensor de Flujo #################################################################
-byte sensorPin = 18;
+byte flowGPIO = 18;
 float calibrationFactor = 7; //7.5;
 volatile byte pulseCount;
 
@@ -273,7 +273,7 @@ void check_flujo()
     if ((millis() - oldTime) > 1000) // Only process counters once per second
     {
 
-      detachInterrupt(sensorPin);
+      detachInterrupt(flowGPIO);
       flowRate = ((1000.0 / (millis() - oldTime)) * pulseCount) / calibrationFactor; //flujo en litros por minuto
       oldTime = millis();
 
@@ -281,7 +281,7 @@ void check_flujo()
       pulseCount = 0;
 
       // Enable the interrupt again now that we've finished sending output
-      attachInterrupt(sensorPin, pulseCounter, FALLING);
+      attachInterrupt(flowGPIO, pulseCounter, FALLING);
     }
     // se chequea que el flujo no sea menor que 5
     if (int(flowRate) <= UMBRAL_FLUJO)
