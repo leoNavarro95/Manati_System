@@ -1,5 +1,4 @@
 
-
 #include "Arduino.h"
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -7,7 +6,7 @@
 #include <ArduinoJson.h>
 #include <SPIFFS.h>
 
-// #define OLED_DEBUG 1//no definir para cancelar el debugin por la OLED de la placa HELTEC
+#define OLED_DEBUG 1//no definir para cancelar el debugin por la OLED de la placa HELTEC
 
 #ifdef OLED_DEBUG
 #include "SSD1306Wire.h" //libreria de la OLED
