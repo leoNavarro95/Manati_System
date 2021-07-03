@@ -1,31 +1,33 @@
 
 //##############################PANTALLA DE CRISTAL LIQUIDO#############################
-#include <LiquidCrystal.h>
-#include <Wire.h>
-const int rs = 13, en = 12, d4 = 14, d5 = 27, d6 = 26, d7 = 25;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+#ifndef OLED_DEBUG
 
-byte bombaOn[8] = {
-    0b00100,
-    0b01110,
-    0b11111,
-    0b00100,
-    0b00100,
-    0b00100,
-    0b00100,
-    0b11111};
-byte bombaOff[8] = {
-    0b11111,
-    0b00100,
-    0b00100,
-    0b00100,
-    0b00100,
-    0b11111,
-    0b01110,
-    0b00100};
+  #include <LiquidCrystal.h>
+  #include <Wire.h>
+  const int rs = 13, en = 12, d4 = 14, d5 = 27, d6 = 26, d7 = 25;
+  LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+  byte bombaOn[8] = {
+      0b00100,
+      0b01110,
+      0b11111,
+      0b00100,
+      0b00100,
+      0b00100,
+      0b00100,
+      0b11111};
+  byte bombaOff[8] = {
+      0b11111,
+      0b00100,
+      0b00100,
+      0b00100,
+      0b00100,
+      0b11111,
+      0b01110,
+      0b00100};
+#endif
 
 //#########################BUZZER CONTROL#############################################################
-#define BUZZER_PIN 15 //Buzzer BUZZER_PIN
+#define BUZZER_PIN 2 //Buzzer BUZZER_PIN
 
 double demora = 0;
 

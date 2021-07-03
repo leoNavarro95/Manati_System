@@ -46,11 +46,18 @@ void TaskTanque(void *pvParameters);     //controla todo lo del tanque nucleo 0
 
 bool inicializado = false;
 
+void clearDisplayData(){
+  display.drawString(30, 0, "  ");
+  display.drawString(30, 10, "   ");
+  display.display();
+}
+
 //###################LCD######################################
 void TaskLCD(void *pvParameters) // This is a task.
 {
   (void)pvParameters;
 
+  #ifndef OLED_DEBUG  
   lcd.begin(16, 2);
   // create a new character
   lcd.createChar(0, bombaOff);
@@ -62,6 +69,23 @@ void TaskLCD(void *pvParameters) // This is a task.
   lcd.setCursor(0, 1);
   lcd.print("Inicializando");
   lcd.display();
+  #else
+  pinMode(RST, OUTPUT);
+  digitalWrite(RST, HIGH); // para activar la OLED 1_0_1
+  vTaskDelay(pdMS_TO_TICKS(60));
+  digitalWrite(RST, LOW);
+  vTaskDelay(pdMS_TO_TICKS(60));
+  digitalWrite(RST, HIGH); // para activar la OLED
+  display.init();
+  display.flipScreenVertically();
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(ArialMT_Plain_10);
+  
+  display.drawString(0, 0, "Sistema de control de nivel");
+  display.drawString(0, 10, "Inicializando");
+  display.display();
+  #endif
+
 
   vTaskDelay(pdMS_TO_TICKS(2000));
 
@@ -77,40 +101,71 @@ void TaskLCD(void *pvParameters) // This is a task.
       while (!Flag)
     {
       if (!conectado)
-      {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Conectando...");
-        lcd.display();
+      { 
+        #ifndef OLED_DEBUG
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Conectando...");
+          lcd.display();
+        #else
+          display.clear();
+          display.drawString(0, 10, "Conectandose...");
+          display.display();
+        #endif
         vTaskDelay(pdMS_TO_TICKS(200));
       }
       if (!(conectado) && offline)
       {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Modo Offline");
-        lcd.display();
+        #ifndef OLED_DEBUG
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Modo Offline");
+          lcd.display();
+        #else
+          display.clear();
+          display.drawString(0, 10, "Modo Offline");
+          display.display();
+        #endif
         vTaskDelay(pdMS_TO_TICKS(3000));
         Flag = true; //para salir del while
       }
       if (conectado)
       {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Conectado");
+        #ifndef OLED_DEBUG
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Conectado");
+        #else
+          display.clear();
+          display.drawString(0, 10, "Conectado");
+          display.display();
+        #endif
         
         if (WifiAp)//si está en modo AP
         {
-          lcd.setCursor(0, 1);
-          lcd.print(WiFi.softAPIP()); //
+          #ifndef OLED_DEBUG
+            lcd.setCursor(0, 1);
+            lcd.print(WiFi.softAPIP()); //
+          #else  
+            display.drawString(0, 20, String(WiFi.softAPIP()));
+            display.display();
+          #endif
         }
         else//si está en STA
         {
-          lcd.setCursor(0, 1);
-          lcd.print(WiFi.localIP());
+          #ifndef OLED_DEBUG
+            lcd.setCursor(0, 1);
+            lcd.print(WiFi.localIP());
+          #else  
+            display.drawString(0, 30, String(WiFi.localIP()));
+            display.display();
+          #endif
         }
-
-        lcd.display();
+        #ifndef OLED_DEBUG
+          lcd.display();
+        #else
+          display.display();
+        #endif
         vTaskDelay(pdMS_TO_TICKS(3000));
         Flag = true; //para salir del while
       }
@@ -118,67 +173,116 @@ void TaskLCD(void *pvParameters) // This is a task.
   }
   
 
-  //ya se inicializo el sensor ultrasónico
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Flujo:");
-  lcd.setCursor(9, 0);
-  lcd.print("L/min");
-  lcd.setCursor(0, 1);
-  lcd.print("Nivel:");
-  lcd.setCursor(11, 1);
-  lcd.print("%");
-  lcd.display();
+  #ifndef OLED_DEBUG
+    //ya se inicializo el sensor ultrasónico
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Flujo:");
+    lcd.setCursor(9, 0);
+    lcd.print("L/min");
+    lcd.setCursor(0, 1);
+    lcd.print("Nivel:");
+    lcd.setCursor(11, 1);
+    lcd.print("%");
+    lcd.display();
+  #else
+    display.clear();
+    display.drawString(0, 0, "Flujo:");
+    display.drawString(50, 0, "L/min");
+    display.drawString(0, 10, "Nivel: ");
+    display.drawString(50, 10, "%");
+    display.drawString(0, 20, "Wifi:");
+    display.drawString(0, 30, "Bomba:");
+    display.display();
+  #endif
 
   for (;;) // A Task shall never return or exit.
-  {
-    lcd.setCursor(6, 0);
-    lcd.print("  ");
-    lcd.setCursor(6, 0);
-    lcd.print(flowRate, 0);
-    lcd.setCursor(8, 1);
-    lcd.print("   ");
-    lcd.setCursor(8, 1);
-    lcd.print(nivel);
+  { 
+    #ifndef OLED_DEBUG
+      lcd.setCursor(6, 0);
+      lcd.print("  ");
+      lcd.setCursor(6, 0);
+      lcd.print(flowRate, 0);
+      lcd.setCursor(8, 1);
+      lcd.print("   ");
+      lcd.setCursor(8, 1);
+      lcd.print(nivel);
+    #else
+      clearDisplayData();
+      delay(10);
+      display.drawString(30, 0, String(flowRate,0));
+      display.drawString(30, 10, String(nivel));
+      
+    #endif
 
-    if (conectado)
-    {
-      lcd.setCursor(13, 1);
-      lcd.print("OK");
-    }
-    else
-    {
-      lcd.setCursor(13, 1);
-      lcd.print("NC");
-    }
+      if (conectado)
+      {
+        
+        #ifndef OLED_DEBUG
+          lcd.setCursor(13, 1);
+          lcd.print("OK");
+        #else
+          display.drawString(30, 20, "Conectado");
+          display.display();
+        #endif
+      }
+      else
+      {
+        #ifndef OLED_DEBUG
+          lcd.setCursor(13, 1);
+          lcd.print("NC");
+        #else
+          display.drawString(30, 20, "No conectado");
+          display.display();
+        #endif
+      }
+
     switch (estadoSensores)
     {
     case 1:
-      lcd.clear();
-      lcd.print("Error de sensor");
-      lcd.display();
+      #ifndef OLED_DEBUG
+        lcd.clear();
+        lcd.print("Error de sensor");
+        lcd.display();
+      #else
+        display.drawString(0, 40, "Error de sensor");
+        display.display();
+      #endif
       break;
     case 2:
-      lcd.clear();
-      lcd.print("Error de bomba");
-      lcd.display();
+      #ifndef OLED_DEBUG
+        lcd.clear();
+        lcd.print("Error de bomba");
+        lcd.display();
+      #else
+        display.drawString(0, 40, "Error de bomba");
+        display.display();
+      #endif
       break;
     }
     //si la bomba esta encendida
     if (pump_on)
     {
-      lcd.setCursor(6, 1);
-      lcd.write(byte(1)); //bomba encendida
+      #ifndef OLED_DEBUG
+        lcd.setCursor(6, 1);
+        lcd.write(byte(1)); //bomba encendida
+      #endif
     }
     else
     {
       //si la bomba esta apagada
-      lcd.setCursor(6, 1);
-      lcd.write(byte(0)); //bomba apagada
+      #ifndef OLED_DEBUG
+        lcd.setCursor(6, 1);
+        lcd.write(byte(0)); //bomba apagada
+      #endif
     }
 
-    lcd.display();
-    Serial.println("LCD running");
+    #ifndef OLED_DEBUG
+      lcd.display();
+    #else
+      display.display();
+    #endif
+    Serial.println("Pantalla running");
     vTaskDelay(pdMS_TO_TICKS(2000));
   }
 }
@@ -190,8 +294,8 @@ void TaskTanque(void *pvParameters)
   pinMode(CTROL_RELAY_GPIO, OUTPUT); //salida bomba
   digitalWrite(CTROL_RELAY_GPIO, LOW);
   pinMode(BUZZER_PIN, OUTPUT); //salida del buzzer
-  pinMode(sensorPin, INPUT_PULLUP);
-  attachInterrupt(sensorPin, pulseCounter, FALLING);
+  pinMode(flowGPIO, INPUT_PULLUP);
+  attachInterrupt(flowGPIO, pulseCounter, FALLING);
 
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPin, INPUT);  // Sets the echoPin as an Input
@@ -236,20 +340,6 @@ void TaskWifiServer(void *pvParameters)
   //pinMode(LED_BUILTIN, OUTPUT);
   // vTaskSuspend(xTaskTanqueHandle); //suspenden las tareas hasta que se configure la wifi
   // vTaskSuspend(xTaskLCDHandle);
-#ifdef OLED_DEBUG
-  pinMode(RST, OUTPUT);
-  digitalWrite(RST, HIGH); // para activar la OLED 1_0_1
-  vTaskDelay(pdMS_TO_TICKS(60));
-  digitalWrite(RST, LOW);
-  vTaskDelay(pdMS_TO_TICKS(60));
-  digitalWrite(RST, HIGH); // para activar la OLED
-  display.init();
-  display.flipScreenVertically();
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(ArialMT_Plain_10);
-  display.drawString(0, 0, "Inicializando");
-  display.display();
-#endif
 
   SPIFFS.begin();
   getConfig(); //obtiene la configuracion desde la SPIFFS
