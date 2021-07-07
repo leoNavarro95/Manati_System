@@ -2,10 +2,16 @@
 //##############################PANTALLA DE CRISTAL LIQUIDO#############################
 #ifndef OLED_DEBUG
 
-  #include <LiquidCrystal.h>
-  #include <Wire.h>
-  const int rs = 13, en = 12, d4 = 14, d5 = 27, d6 = 26, d7 = 25;
-  LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+  // LCD Paralela
+  // #include <LiquidCrystal.h>
+  // #include <Wire.h>
+  // const int rs = 13, en = 12, d4 = 14, d5 = 27, d6 = 26, d7 = 25;
+  // LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+  // LCD_I2C
+  #include<LiquidCrystal_I2C.h>
+  LiquidCrystal_I2C lcd(0x27, 16, 2); // ver Wire.begin() para la definicion de los pines I2C
+  
   byte bombaOn[8] = {
       0b00100,
       0b01110,
