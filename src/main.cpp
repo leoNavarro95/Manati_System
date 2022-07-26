@@ -7,6 +7,17 @@
 #include <ArduinoJson.h>
 #include <SPIFFS.h>
 
+// Touch sensor for manual activation
+int threshold = 40;
+bool touchdetected = false;
+
+
+void gotTouch(){
+ touchdetected = true;
+}
+
+
+
 // #define OLED_DEBUG 1//no definir para cancelar el debugin por la OLED de la placa HELTEC
 
 #ifdef OLED_DEBUG
@@ -301,6 +312,8 @@ void setup()
   // put your setup code here, to run once:
   Serial.begin(115200);
 
+  touchAttachInterrupt(T3, gotTouch, threshold);
+
   // Now set up tasks to run independently.
   xTaskCreatePinnedToCore(
       TaskLCD, "Task_LCD", // A name just for humans
@@ -318,7 +331,14 @@ void setup()
 
 void loop()
 {
+  // Serial.println(touchRead(T3));
+    if(touchdetected){
+      touchdetected = false;
+      pump_on = !pump_on;
+      Serial.println("Touch detected");
+    }
 
+    vTaskDelay(pdMS_TO_TICKS(1000));
   //Usando FreeRTOS asi que va vacio
 }
 //#######################################################################################################

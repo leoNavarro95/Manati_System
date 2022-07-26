@@ -145,4 +145,3 @@ void ConnectWiFi_AP(bool useStaticIP = false)
   Serial.println("");
 }
 
-//####### Manage Wifi Status in Touch Interrupt Routine
