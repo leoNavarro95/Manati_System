@@ -283,8 +283,8 @@ void check_flujo()
       // Enable the interrupt again now that we've finished sending output
       attachInterrupt(sensorPin, pulseCounter, FALLING);
     }
-    // se chequea que el flujo no sea menor que 5
-    if (int(flowRate) <= UMBRAL_FLUJO)
+    // se chequea que el flujo no sea menor que el umbral
+    if (int(flowRate) < UMBRAL_FLUJO)
     { //no esta bombeando eficientemente o no lo esta haciendo
       buzzer_warning();
       bombaFail_counter++;
